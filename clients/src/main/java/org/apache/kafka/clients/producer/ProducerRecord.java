@@ -46,6 +46,7 @@ import org.apache.kafka.common.header.internals.RecordHeaders;
  */
 public class ProducerRecord<K, V> {
 
+    //主题
     private final String topic;
     private final Integer partition;
     private final Headers headers;
