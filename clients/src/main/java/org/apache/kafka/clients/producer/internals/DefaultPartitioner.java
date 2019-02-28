@@ -52,11 +52,17 @@ public class DefaultPartitioner implements Partitioner {
      * @param cluster The current cluster metadata
      */
     public int partition(String topic, Object key, byte[] keyBytes, Object value, byte[] valueBytes, Cluster cluster) {
+        //获取主题分区数
         List<PartitionInfo> partitions = cluster.partitionsForTopic(topic);
+        //分区size
         int numPartitions = partitions.size();
         if (keyBytes == null) {
+
             int nextValue = nextValue(topic);
+
+            //可用分区
             List<PartitionInfo> availablePartitions = cluster.availablePartitionsForTopic(topic);
+
             if (availablePartitions.size() > 0) {
                 int part = Utils.toPositive(nextValue) % availablePartitions.size();
                 return availablePartitions.get(part).partition();
@@ -73,6 +79,7 @@ public class DefaultPartitioner implements Partitioner {
     private int nextValue(String topic) {
         AtomicInteger counter = topicCounterMap.get(topic);
         if (null == counter) {
+            //随机数
             counter = new AtomicInteger(ThreadLocalRandom.current().nextInt());
             AtomicInteger currentCounter = topicCounterMap.putIfAbsent(topic, counter);
             if (currentCounter != null) {
