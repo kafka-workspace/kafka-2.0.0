@@ -410,7 +410,10 @@ public class Fetcher<K, V> implements SubscriptionState.Listener, Closeable {
         long startMs = time.milliseconds();
         long remaining = timeout;
         do {
+
             RequestFuture<ListOffsetResult> future = sendListOffsetsRequests(remainingToSearch, requireTimestamps);
+
+
             client.poll(future, remaining);
 
             if (!future.isDone())

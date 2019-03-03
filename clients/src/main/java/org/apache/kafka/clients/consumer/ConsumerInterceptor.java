@@ -43,6 +43,7 @@ import java.util.Map;
 public interface ConsumerInterceptor<K, V> extends Configurable {
 
     /**
+     * 消息返回之前调用
      * This is called just before the records are returned by
      * {@link org.apache.kafka.clients.consumer.KafkaConsumer#poll(java.time.Duration)}
      * <p>
@@ -65,9 +66,11 @@ public interface ConsumerInterceptor<K, V> extends Configurable {
      * @param records records to be consumed by the client or records returned by the previous interceptors in the list.
      * @return records that are either modified by the interceptor or same as records passed to this method.
      */
+
     public ConsumerRecords<K, V> onConsume(ConsumerRecords<K, V> records);
 
     /**
+     * 提交完位移之后调用
      * This is called when offsets get committed.
      * <p>
      * Any exception thrown by this method will be ignored by the caller.

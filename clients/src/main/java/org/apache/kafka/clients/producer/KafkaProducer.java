@@ -674,6 +674,7 @@ public class KafkaProducer<K, V> implements Producer<K, V> {
      *         transactional.id is not authorized. See the exception for more details
      * @throws KafkaException if the producer has encountered a previous fatal error or for any other unexpected error
      */
+    @Override
     public void abortTransaction() throws ProducerFencedException {
         throwIfNoTransactionManager();
         TransactionalRequestResult result = transactionManager.beginAbort();

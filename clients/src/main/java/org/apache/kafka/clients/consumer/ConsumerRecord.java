@@ -36,6 +36,8 @@ public class ConsumerRecord<K, V> {
     private final int partition;
     private final long offset;
     private final long timestamp;
+
+    //时间戳类型
     private final TimestampType timestampType;
     private final int serializedKeySize;
     private final int serializedValueSize;

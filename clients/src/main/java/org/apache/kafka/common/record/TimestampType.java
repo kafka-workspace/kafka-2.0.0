@@ -22,7 +22,12 @@ import java.util.NoSuchElementException;
  * The timestamp type of the records.
  */
 public enum TimestampType {
-    NO_TIMESTAMP_TYPE(-1, "NoTimestampType"), CREATE_TIME(0, "CreateTime"), LOG_APPEND_TIME(1, "LogAppendTime");
+
+    NO_TIMESTAMP_TYPE(-1, "NoTimestampType"),
+    //消息创建时间
+    CREATE_TIME(0, "CreateTime"),
+    //消息追加到日志的时间戳
+    LOG_APPEND_TIME(1, "LogAppendTime");
 
     public final int id;
     public final String name;

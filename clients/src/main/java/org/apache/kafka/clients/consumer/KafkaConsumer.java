@@ -574,6 +574,7 @@ public class KafkaConsumer<K, V> implements Consumer<K, V> {
     // currentThread holds the threadId of the current thread accessing KafkaConsumer
     // and is used to prevent multi-threaded access
     private final AtomicLong currentThread = new AtomicLong(NO_CURRENT_THREAD);
+
     // refcount is used to allow reentrant access by the thread who has acquired currentThread
     private final AtomicInteger refcount = new AtomicInteger(0);
 
@@ -1906,6 +1907,8 @@ public class KafkaConsumer<K, V> implements Consumer<K, V> {
     }
 
     /**
+     * 根据timestamp查询对应分区位置
+     *
      * Look up the offsets for the given partitions by timestamp. The returned offset for each partition is the
      * earliest offset whose timestamp is greater than or equal to the given timestamp in the corresponding partition.
      *
@@ -2113,6 +2116,9 @@ public class KafkaConsumer<K, V> implements Consumer<K, V> {
     }
 
     /**
+     * 唤醒客户端
+     */
+    /**
      * Wakeup the consumer. This method is thread-safe and is useful in particular to abort a long poll.
      * The thread which is blocking in an operation will throw {@link org.apache.kafka.common.errors.WakeupException}.
      * If no thread is blocking in a method which can throw {@link org.apache.kafka.common.errors.WakeupException}, the next call to such a method will raise it instead.
@@ -2204,6 +2210,8 @@ public class KafkaConsumer<K, V> implements Consumer<K, V> {
     }
 
     /**
+     * 检测当前是否只有一个线程在操作
+     * 通过线程操作计数标记的方式检测线程是否发生了并发操作
      * Acquire the light lock protecting this consumer from multi-threaded access. Instead of blocking
      * when the lock is not available, however, we just throw an exception (since multi-threaded usage is not
      * supported).
@@ -2211,6 +2219,7 @@ public class KafkaConsumer<K, V> implements Consumer<K, V> {
      */
     private void acquire() {
         long threadId = Thread.currentThread().getId();
+
         if (threadId != currentThread.get() && !currentThread.compareAndSet(NO_CURRENT_THREAD, threadId))
             throw new ConcurrentModificationException("KafkaConsumer is not safe for multi-threaded access");
         refcount.incrementAndGet();

@@ -229,6 +229,12 @@ public class SubscriptionState {
         return this.subscription;
     }
 
+
+    /**
+     * 返回被暂停的分区集合
+     *
+     * @return
+     */
     public Set<TopicPartition> pausedPartitions() {
         HashSet<TopicPartition> paused = new HashSet<>();
         for (PartitionStates.PartitionState<TopicPartitionState> state : assignment.partitionStates()) {
@@ -447,12 +453,19 @@ public class SubscriptionState {
     }
 
     private static class TopicPartitionState {
+
         private Long position; // last consumed position
+
         private Long highWatermark; // the high watermark from last fetch
+
         private Long logStartOffset; // the log start offset
+
         private Long lastStableOffset;
+
         private boolean paused;  // whether this partition has been paused by the user
+
         private OffsetResetStrategy resetStrategy;  // the strategy to use if the offset needs resetting
+
         private Long nextAllowedRetryTimeMs;
 
         TopicPartitionState() {
