@@ -461,7 +461,11 @@ object PartitionLeaderElectionAlgorithms {
   }
 }
 
+/**
+  * 选择策略
+  */
 sealed trait PartitionLeaderElectionStrategy
+//创建分区的时候使用
 case object OfflinePartitionLeaderElectionStrategy extends PartitionLeaderElectionStrategy
 case object ReassignPartitionLeaderElectionStrategy extends PartitionLeaderElectionStrategy
 case object PreferredReplicaPartitionLeaderElectionStrategy extends PartitionLeaderElectionStrategy

@@ -48,8 +48,11 @@ case class ProduceMetadata(produceRequiredAcks: Short,
 }
 
 /**
- * A delayed produce operation that can be created by the replica manager and watched
- * in the produce operation purgatory
+  *
+  * 延时的生产操作
+  *
+  * A delayed produce operation that can be created by the replica manager and watched
+  * in the produce operation purgatory
  */
 class DelayedProduce(delayMs: Long,
                      produceMetadata: ProduceMetadata,

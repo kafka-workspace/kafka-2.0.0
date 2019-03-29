@@ -36,6 +36,7 @@ private[timer] class TimerTaskList(taskCounter: AtomicInteger) extends Delayed {
 
   private[this] val expiration = new AtomicLong(-1L)
 
+  // 设置过期时间
   // Set the bucket's expiration time
   // Returns true if the expiration time is changed
   def setExpiration(expirationMs: Long): Boolean = {

@@ -127,9 +127,10 @@ object AdminUtils extends Logging with AdminUtilities {
    *
    */
   def assignReplicasToBrokers(brokerMetadatas: Seq[BrokerMetadata],
-                              nPartitions: Int,
-                              replicationFactor: Int,
-                              fixedStartIndex: Int = -1,
+                              nPartitions: Int,//分区数
+                              replicationFactor: Int,//副本因子
+                              fixedStartIndex: Int = -1,//起始索引,即第一个副本分配的位置，默认值为 -1
+                              //起始分区编号,默认值为-1
                               startPartitionId: Int = -1): Map[Int, Seq[Int]] = {
     if (nPartitions <= 0)
       throw new InvalidPartitionsException("Number of partitions must be larger than 0.")
@@ -148,29 +149,59 @@ object AdminUtils extends Logging with AdminUtilities {
     }
   }
 
+  /**
+    *
+    * 无机架的副本分配到Broker
+    * @param nPartitions
+    * @param replicationFactor
+    * @param brokerList
+    * @param fixedStartIndex
+    * @param startPartitionId
+    * @return
+    */
+
   private def assignReplicasToBrokersRackUnaware(nPartitions: Int,
                                                  replicationFactor: Int,
                                                  brokerList: Seq[Int],
                                                  fixedStartIndex: Int,
                                                  startPartitionId: Int): Map[Int, Seq[Int]] = {
+
+    //保存分配结果的集合
     val ret = mutable.Map[Int, Seq[Int]]()
+    //brokerId的列表
     val brokerArray = brokerList.toArray
+    //如果起始索引fixedStartIndex小于0，则根据broker列表随机生成一个，以此来保证是有效的brokerId
     val startIndex = if (fixedStartIndex >= 0) fixedStartIndex else rand.nextInt(brokerArray.length)
+    //确保起始分区号不小于0
     var currentPartitionId = math.max(0, startPartitionId)
+    //指定了副本的间隔,目的是为了更均匀的将副本分配到不同的broker上
     var nextReplicaShift = if (fixedStartIndex >= 0) fixedStartIndex else rand.nextInt(brokerArray.length)
+    //轮询所有分区,将每个分区的副本分配到不同的broker上
     for (_ <- 0 until nPartitions) {
       if (currentPartitionId > 0 && (currentPartitionId % brokerArray.length == 0))
         nextReplicaShift += 1
       val firstReplicaIndex = (currentPartitionId + startIndex) % brokerArray.length
       val replicaBuffer = mutable.ArrayBuffer(brokerArray(firstReplicaIndex))
+      //保存该分区所有副本的分配信息
       for (j <- 0 until replicationFactor - 1)
         replicaBuffer += brokerArray(replicaIndex(firstReplicaIndex, nextReplicaShift, j, brokerArray.length))
       ret.put(currentPartitionId, replicaBuffer)
+      //继续为下一个分区分配副本
       currentPartitionId += 1
     }
     ret
   }
 
+
+  /**
+    * 机架信息分配到broker
+    * @param nPartitions
+    * @param replicationFactor
+    * @param brokerMetadatas
+    * @param fixedStartIndex
+    * @param startPartitionId
+    * @return
+    */
   private def assignReplicasToBrokersRackAware(nPartitions: Int,
                                                replicationFactor: Int,
                                                brokerMetadatas: Seq[BrokerMetadata],

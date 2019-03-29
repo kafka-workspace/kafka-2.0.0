@@ -506,6 +506,8 @@ public class KafkaAdminClient extends AdminClient {
     }
 
     /**
+     *
+     *节点信息
      * Provides the controller node.
      */
     private class ControllerNodeProvider implements NodeProvider {

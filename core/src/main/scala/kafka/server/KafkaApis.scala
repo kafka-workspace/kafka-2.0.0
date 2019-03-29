@@ -96,6 +96,8 @@ class KafkaApis(val requestChannel: RequestChannel,
   }
 
   /**
+    *
+    * 协议设计
    * Top-level method that handles all requests and multiplexes to the right api
    */
   def handle(request: RequestChannel.Request) {

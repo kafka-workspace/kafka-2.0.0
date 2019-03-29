@@ -124,6 +124,7 @@ object ReplicaManager {
   val OfflinePartition = new Partition("", -1, null, null, isOffline = true)
 }
 
+//副本管理
 class ReplicaManager(val config: KafkaConfig,
                      metrics: Metrics,
                      time: Time,
@@ -1032,6 +1033,7 @@ class ReplicaManager(val config: KafkaConfig,
         val controllerId = leaderAndIsrRequest.controllerId
         controllerEpoch = leaderAndIsrRequest.controllerEpoch
 
+        //检查其中的每个partitionStateInfo中的leader epoch
         // First check partition's leader epoch
         val partitionState = new mutable.HashMap[Partition, LeaderAndIsrRequest.PartitionState]()
         val newPartitions = leaderAndIsrRequest.partitionStates.asScala.keys.filter(topicPartition => getPartition(topicPartition).isEmpty)
@@ -1072,14 +1074,18 @@ class ReplicaManager(val config: KafkaConfig,
         }
         val partitionsToBeFollower = partitionState -- partitionsTobeLeader.keys
 
+        //如果是leader
         val partitionsBecomeLeader = if (partitionsTobeLeader.nonEmpty)
           makeLeaders(controllerId, controllerEpoch, partitionsTobeLeader, correlationId, responseMap)
         else
           Set.empty[Partition]
+
+        //如果是follower
         val partitionsBecomeFollower = if (partitionsToBeFollower.nonEmpty)
           makeFollowers(controllerId, controllerEpoch, partitionsToBeFollower, correlationId, responseMap)
         else
           Set.empty[Partition]
+
 
         leaderAndIsrRequest.partitionStates.asScala.keys.foreach(topicPartition =>
           /*
@@ -1153,6 +1159,7 @@ class ReplicaManager(val config: KafkaConfig,
       // First stop fetchers for all the partitions
       replicaFetcherManager.removeFetcherForPartitions(partitionState.keySet.map(_.topicPartition))
       // Update the partition information to be the leader
+      //更新Partition中的属性
       partitionState.foreach{ case (partition, partitionStateInfo) =>
         try {
           if (partition.makeLeader(controllerId, partitionStateInfo, correlationId)) {
